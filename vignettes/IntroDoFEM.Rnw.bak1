@@ -1,0 +1,296 @@
+%\VignetteIndexEntry{A R package to identify interactome hotspots of differential promoter methylation and differential expression, where an inverse association between promoter methylation and gene expression is assumed1.}
+%\VignetteDepends{Matrix,marray,corrplot,igraph,impute,limma,org.Hs.eg.db,AnnotationDbi}
+%\VignetteKeyword{promoter methylation}
+%\VignetteKeyword{promoter methylation}
+%\VignetteKeyword{interactome hotspots}
+\documentclass[a4paper]{article}
+\usepackage{cite} % Make references as [1-4], not [1,2,3,4]
+\usepackage{url}  % Formatting web addresses
+\usepackage{ifthen}  % Conditional
+\usepackage{multicol}   %Columns
+\usepackage[utf8]{inputenc} %unicode support
+\usepackage{textcomp}
+\usepackage{rotating}
+%\usepackage[applemac]{inputenc} %applemac support if unicode package fails
+%\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
+\urlstyle{rm}
+
+\begin{document}
+
+%Classification: Biological Sciences (Computational Biology and Systems Biology)
+\title{The FEM R package: Identification of Functional Epigenetic Modules}
+
+% 150 characters
+\author{Yinming Jiao and Andrew E. Teschendorff}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+This vignette provides examples of how to use the package FEM to identify interactome hotspots of differential promoter methylation and differential expression, where an inverse association between promoter methylation and gene expression is assumed \cite{jiao2014}. By “interactome hotspot” we mean a connected subnetwork of the protein interaction network (PIN) with an exceptionally large average edge-weight density in relation to the rest of the network. The weight edges are constructed from the statistics of association of DNA methylation and gene expression with the phenotype of interest. Thus, the FEM algorithm can be viewed as a functional supervised algorithm, which uses a network of relations between genes (in our case a PPI network), to identify subnetworks where a significant number of genes are associated with a phenotype of interest (POI).  We call these “hotspots” also Functional Epigenetic Modules (FEMs). Current functionality of FEM works for Illumina Infinium 450k data, however, the structure is modular allowing easy application or generalization to DNA methylation data generated with other technologies. The FEM algorithm on Illumina 27k data was first presented in \cite{Jones2013pmed}, with its extension to Illumina 450k data described in \cite{jiao2014}. The module detection algorithm used is the spin-glass algorithm of \cite{Reichardt2006}. The PIN used in this vignette includes only protein-protein interactions, derives from Pathway Commons \cite{Cerami2011} and is available from {\it http://sourceforge.net/projects/funepimod/} under filename (hprdAsigH*.Rd), but the user is allowed to specify his own network.\\
+There are three main components to this vignette. These are:
+\begin{itemize}
+\item Application to simulated data.
+\item Real world example: application to Endometrial Cancer.
+\item Further details of the algorithm.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Application to simulated data}
+
+Since FEM is a BioC package, the user first needs to install both R and Bioconductor. R is a free open source software project freely downloadable from the CRAN website \emph{http://cran.r-project.org/}. FEM has several package dependencies, such as igraph, marray, corrplot. So these need to be installed first. For example. to install igraph and corrplot, type \emph{install.packages(c("igraph","corrplot"))}. Since marray is a bioconductor package, we can install it with \\
+\emph{source("http://bioconductor.org/biocLite.R");}\\
+\emph{biocLite("marray")}. \\
+Load them with
+%%%%%%
+<<>>=
+library("igraph");
+library("marray");
+library("corrplot")
+@
+You can check your version of iGraph by entering  \emph{sessionInfo()\$otherPkgs\$igraph\$Version}. It should be at least version 0.6.\\ 
+%%%%%%
+To load the FEM package in your R session,
+<<>>=
+library("FEM");	
+@
+We demonstrate the functionality of FEM using first a simulated toy dataset. Briefly, the toy dataset consists of a small random graph weighted gene network, with a clique embedded in it. To load it into the session, use 
+<<>>=
+data(Toydata)#load the Toydata$
+@
+The object \emph{Toydata} is a list and has five elements:
+%%%%%%
+<<>>=
+names(Toydata)
+@
+%%%%%%
+The first element is \emph{statM}
+<<>>=
+head(Toydata$statM)#"head" function is used to show the first 10 rows of statM
+@
+
+\emph{statM} is a matrix of t-statistics and p-values of differential methylation (one row for each gene promoter) with rownames annotated with a geneID (here just an index). There are 84 rows because the maximally connected component of the 100-node random graph generated was of size 84. Most of the rows have statistics which have been simulated to be close to zero (between -0.5 and 0.5), meaning that for these there is no association between DNA methylation and the phenotype of interest (POI). There are also ten randomly selected probes whose t-statistics are randomly chosen to lie between 2 and 5, meaning that for these promoters high methylation is associated positively with the POI. \\
+%%%%%%
+Now lets's check the 10 genes (here labeled merely by an index) whose t-statistics is larger than 2: 
+<<>>=
+as.vector(which(Toydata$statM[,1]>2))->tennodes;
+tennodes;
+@
+This should agree with the tennodes entry of \emph{Toydata}. The second member is \emph{statR}
+<<>>=
+head(Toydata$statR)
+@
+statR is a matrix of t-statistics and p-values of differential mRNA expression (same dimension as statM.m and ordered in same way) with rownames annotated with the same index gene ID. The t-statistics of the previously selected 10 genes are set to lie between -2 and -5. Thus, this models the case of ten promoters which are underexpressed due to hypermethylation.\\\\
+%%%%%%
+The following command identifies the index positions of genes that are significantly underexpressed. They agree with those that are hypermethylated: 
+<<>>=
+as.vector(which(Toydata$statR[,1]< -2));
+@
+%%%%%%
+The third member is \emph{adjacency}. This is the adjacency matrix, with number of rows and columns equal to rows of statR (or statM), ordered in same way and with same gene identifier. The graph is connected, and was constructed as the maximally connected subgraph of a 100-node random graph (Erdos-Renyi graph). Specifically, the original random graph was generated with erdos.renyi.game(100, 2/100) and then the solitary nodes were removed, resulting in a connected network of 84 nodes/genes.\\
+We note that the 10 nodes which are differentially methylated and differentially expressed, form a clique, meaning that each of these ten nodes is connected to each other. So they belong to a deliberately created module with high absolute differential methylation and diffential expression t-statistics. They are indicated in the following plot.\\\\
+%%%%%%---Plot the net with 10 node
+Plot this network from \emph{adjacency} with the ten nodes marked as a group. 
+<<fig=TRUE>>=
+plot.igraph(graph.adjacency(Toydata$adjacency,mod="undirected"),
+vertex.size=8,mark.groups=Toydata$tennodes,mark.col="yellow")
+@
+%%%%%%
+The fourth member of the list is \emph{annotation}, an annotation matrix:
+<<>>=
+head(Toydata$annotation)
+@
+First column should contain the unique (entrez gene) identifiers as used in adj.m, statM.m and statR.m. Second column should contain the corresponding unique gene symbols. In this toy network case, we use just use integer indices as trivial identifiers.\\\\
+As mentioned before, FEM is use to detect interactome hotspots of differential promoter methylation and differential expression, where an inverse association between promoter methylation and gene expression is assumed. So let us test whether FEM can detect the simulated module of ten nodes: \\\\
+%%%%%%
+We now use DoFEMbi() to find the community structures induced by these phenotype changes in the Toydata. First, however, we need to define the input object, as follows:
+<<>>=
+intFEM.o <- list(statM=Toydata$statM,statR=Toydata$statR,adj=Toydata$adj);
+@
+<< results=hide>>=
+DoFEMtoy.o  <- DoFEMbi(intFEM.o,nseeds=1,gamma=0.5,nMC=1000,
+sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TOY",ew.v=NULL);
+@
+Some of the arguments of this function are worth describing here:\\\\
+\textbf{nseeds:} the number of seeds/modules to search for. \\\\
+\textbf{gamma:} the tuning parameter of the spin-glass module detection algorithm. This parameter is very important because it controls the average module size. Default value generally leads to modules in the desired size range of 10 to 100 genes.\\\\
+\textbf{nMC:} number of Monte Carlo runs for establishing statistical significance of modularity values under randomisation of the molecular profiles on the network.\\\\
+You can also use "sizeR.v" to set the desired size range for modules, "minsizeOUT" to set the minimum size of modules to report as interesting and "writeOUT" to indicate whether to write out tables in text format.\\\\
+There are two output files summarising the results of the \emph{DoFEMbi} function. One output file contains colums which describe the following: 
+\begin{itemize}
+\item size: a vector of inferred module sizes for each of the ntop seeds.
+\item mod: a vector of associated modularities.
+\item pv: a vector of associated significance P-values (with resolution of nMC runs).
+\item selmod: index positions of significant modules of size at least minsizeOUT and smaller than the maximum specified in sizeR.v
+\item fem: a summary matrix of the selected modules.
+\item topmod: a list of summary matrices for each of the selected module
+\end{itemize}
+%%%%%%
+Let's check the details of the output:
+<<>>=
+DoFEMtoy.o$fem
+@
+We can see that we get one module with seed "Gene11" (hence its module name ``Gene11'') and it has 36 members.
+%%%%%%
+With the following command, we can have a look at the details of the first five genes in the "Gene11" module:
+<<>>=
+head(DoFEMtoy.o$topmod$Gene11,n=5L)
+@
+To indicate the "Gene11" module in the whole network, use:
+%%%%%% ---Plot the net with 36 node
+<<fig=TRUE>>=
+mod.idx<-as.numeric(DoFEMtoy.o$topmod$Gene11[,1])
+plot.igraph(graph.adjacency(Toydata$adjacency,mod="undirected"),
+vertex.size=8,mark.groups=mod.idx,mark.col="yellow")
+@
+%%%%%%
+In order to check the effectiveness of FEM in detecting the true module, we compute the sensitivity, defined as the fraction of the truly associated genes that are captured by the inferred module:
+<<>>=
+sensitivity=length(intersect(tennodes,mod.idx))/length(tennodes);
+sensitivity
+@
+Thus, we find that the sensitivity is 100$\%$, meaning that FEM inferred a module that contained all 10 genes that were truly differentially methylated and expressed. Although, specificity is not 100$\%$, this is to be expected since a larger module can still exhibit a higher than random average weight density.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{A real world example: application to Endometrial Cancer}
+To validate the FEM algorithm on real Illumina 450k data we collected and analyzed 118 endometrial cancers and 17 normal endometrial samples, all with matched RNA-Seq data from the TCGA study \cite{Kandoth2013}. To assign DNA methylation values to a given gene, in the case of Illumina 27k data, we assigned the probe value closest to the transcription start site (TSS). In the case of Illumina 450k data, we assigned to a gene, the average value of probes mapping to within 200bp of the TSS. If no probes map to within 200bp of the TSS, we use the average of probes mapping to the 1st exon of the gene. If such probes are also not present, we use the average of probes mapping to within 1500bp of the TSS. Justification
+for this procedure is provided in our Bioinformatics paper \cite{jiao2014}. For each gene $g$ in the maximally connected subnetwork, we then derive a statistic of association between its DNA methylation profile and the POI (here normal/cancer status), denoted by $t^{(D)}_g$ as well as between its mRNA expression profile and the same POI, which we denote by $t^{(R)}_g$. These statistics have already been computed beforehand using the limma package. We now load them in:
+%%%%%%
+<<>>=
+data(Realdata);
+attributes(Realdata);
+@
+%%%%%%
+As before, we prepare the input object:
+<<>>=
+intFEM.o <- list(statM=Realdata$statM,statR=Realdata$statR,adj=Realdata$adj)
+@ 
+Since running DoFEMbi on large data sets can be lengthy (it takes 23 minutes on a 4 3GHz CPU-core Dell Workstation with 16GB memory), we comment the following line out:
+<<>>=
+#Realdata$fembi.o <- DoFEMbi(intFEM.o,
+#                            nseeds=100,gamma=0.5,nMC=1000,sizeR.v=c(1,100),
+#                            minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TCGA-EC",ew.v=NULL);
+@
+%%%%%%
+The results are found in the \emph{fembi.o} entry of \emph{Realdata}. The algorithm predicts a number of FEM modules. Use the folloing command to display their size and elements.
+%%%%%%
+<<results=hide>>=
+Realdata$fembi.o$fem
+@
+%%%%%%
+The details of the modules can also be seen using:
+<<results=hide>>=
+Realdata$fembi.o$topmod
+@
+%%%%%%
+In order to illustrate the modules graphically, the user can invoke the function \emph{FemModShow}, which will generate a pdf figure of the module in your working directory and also return an \emph{graphNEL} object which includes methylation and expression color schemes. The \emph{graphNEL} class is defined in the bioconductor graph package, user can use  \emph{igraph.from.graphNEL} to convert it to the igraph objects. For instance, the algorithm inferred a module centred around the gene {\it HAND2}, which has been demonstrated to be causally implicated in the development of endometrial cancer \cite{Jones2013pmed}. Thus, given its importance, we generate a detailed network plot of this module:
+<<results=hide>>=
+library("marray");
+library("corrplot");
+HAND2.mod<-Realdata$fembi.o$topmod$HAND2;
+HAND2.graphNEL.o=FemModShow(Realdata$fembi.o$topmod$HAND2,name="HAND2",Realdata$fembi.o)
+@
+%%%%%%%include the HAND2 figure
+
+\includegraphics{HAND2}
+
+Depicted is the functional epigenetic module centred around seed
+gene HAND2. Edge widths are proportional to the average statistic of
+the genes making up the edge. Node colours denote the differential DNA
+methylation statistics as indicated. Border colors denote the differential
+expression statistics. Observe that despite many nodes exhibiting differential
+methylation and differential expression, only HAND2, exhibits the expected
+anticorrelation with hypermethylation (blue) leading to underexpression
+(green). See Jones et al \cite{Jones2013pmed} for the functional, biological and clinical significance of {\it HAND2} in endometrial cancer.\\\\
+%%%%%%
+The user can generate all the modules' graphs by
+<<results=hide>>=
+#for(m in 1:length(names(Realdata$fembi.o$topmod))){
+#FemModShow(Realdata$fembi.o$topmod[[m]],
+#name=names(Realdata$fembi.o$topmod)[m],Realdata$fembi.o)}
+@
+In the above examples we provided the statistics and adjacency matrix input objects. However, in most circumstances, we would need to generate the statistics of differential DNA methylation and gene expression and subsequently integrate them with the network. The integration with the network requires that statistics be generated at the gene-level. This is what the functions \emph{GenStatM} and \emph{GenStatR} do. In the case of \emph{GenStatM}, the input arguments are:
+\begin{itemize}
+\item dnaM.m: a normalised Illumina 450k DNA methylation data matrix, with rownames annotated to 450k probe IDs.
+\item pheno.v: phenotype vector corresponding to the samples/columns of dnaM.m. 
+\end{itemize} 
+The function then generates for all pairwise contrasts/levels of the phenotype vector, ranked tables of top-ranked genes. The function also returns the average beta-matrix with rows labeling genes. Similarly, the input arguments of \emph{GenStatR} are:
+\begin{itemize}
+\item exp.m: normalized gene expression data matrix with rownames annotated to NCBI Entrez gene IDs. If the mapped Entrez gene IDs are not unique, the function will average values of the same Entrez gene ID.
+\item pheno.v: phenotype vector corresponding to the columns of exp.m.
+\end{itemize}	
+As before, the function then generates for all pairwise contrasts/levels of the phenotype vector, ranked tables of top-ranked genes. The function also returns the average expression matrix with rows labeling unique genes.\\
+Suppose the output of \emph{GenStatM} and \emph{GenStatR} are stored in objects \emph{statM.o} and \emph{statR.o}, respectively. Next step is then to integrate the statistics with the network of gene relations, specified by an adjacency matrix \emph{adj.m}. This is accomplished with the \emph{DoIntFEM450k} function:
+<<>>=
+#DoIntFEM450k(statM.o,statR.o,adj.m,cM,cR)
+@ 
+where we have also specified two integers, \emph{cM} and \emph{cR}, which select the appropriate contrasts in the \emph{statM.o} and \emph{statR.o} objects. For instance, if our phenotype vector consists of 3 categories (say, normal, cancer and metastasis), then there are 0.5*3*2=3 pairwise comparisons. We then need to check which contrast/column in \emph{statM.o\$cont} and \emph{statR.o\$cont} corresponds to the one of interest, and assign this integer to \emph{cM} and \emph{cR}, respectively.\\
+We should also point out that the adjacency matrix represents a network of gene relationships (e.g. a PPI network) with rownames/colnames annotated to NCBI Entrez gene IDs. For instance, the PPI network can be derived from the Pathway Commons resource\cite{Cerami2011} and its construction could follow the procedure described in \cite{West2013}. The PPI network used in previous papers is available at \emph{http://sourceforge.net/projects/funepimod/files/}. The file name is hprdAsigH*Rd. This particular PPI network consists of 8434 genes annotated to NCBI Entrez identifiers, and is sparse containing 303600 documented interactions (edges). If the user wishes they can use a different network.\\
+The output of \emph{DoIntFEM450k} is a list with following entries:
+\begin{itemize}
+\item{statM}{matrix of DNA methylation moderated t-statistics and P-values for the genes in the integrated network}
+\item{statR}{matrix of gene expression moderated t-statistics and P-values for the genes in the integrated network}
+\item{adj}{adjacency matrix of the maximally connected integrated
+  network (at present only maximally connected subnetwork is used).}
+\item{avexp}{average expression data matrix mapped to unique Entrez IDs}
+\item{avbeta}{average DNA methylation data matrix mapped to unique Entrez IDs}
+\end{itemize}
+
+
+\section{EpiMod and ExpMod}
+It may be that we only wish to infer either differential methylation or differential expression interactome hotspots. To this end, we provide specific functions, i.e. \emph{DoIntEpi450K} to do the integration at the DNA methylation level only. Indeed, \emph{DoIntEpi450K} is the same as \emph{DoIntFEM450k}, except that we do not need the \emph{statR.o} argument. In this case, the edge weights in the interactome network reflect the combined differential methylation statistics (absolute values) of the genes making up the edge. The output of \emph{DoIntFEM450k} would then be used as input to the function \emph{DoEpiMod}. Once we have run \emph{DoEpiMod}, we can use \emph{FemModShow} to show the top modules. The usage and arguments of \emph{FemModShow} for EpiMod is same as previous decribed. You just need to add an argument "mode" and set "mode" =  "Epi" (as  \emph{FemModShow} has three modes, the default one being  "integration", which is the one to use with \emph{DoFEMbi}). The "Epi" mode means  \emph{FemModShow} will render the Epi-modules generated by \emph{DoEpiMod}. 
+\\\\
+The workflow applying GenStatM, DoIntEpi450k and DoEpiMod would be something like:
+<<>>=
+#statM.o <- GenStatM(dnaM.m,phenoM.v);
+#intEpi.o=DoIntEpi450k(statM.o,adj.m,c=1)
+#EpiMod.o=DoEpiMod(intEpi.o,
+#                  	   nseeds=100,gamma=0.5,nMC=1000,sizeR.
+#			   v=c(1,100), minsizeOUT=10,writeOUT=TRUE,
+#                          nameSTUDY="TCGA-EC",ew.v=NULL);
+@
+The DoIntEpi450k example data will be available later in an experimental package. In this case, application to the 450K methylation data of 118 endometrial cancers and 17 normal endometrials from TCGA, results in a module, also centred around \emph{HAND2}:
+\\\\
+\includegraphics{HAND2epi}
+\\\\
+Depicted is the HAND2 Epi-module which contains many interacting members, most of which are hypermethylated in cancer compared to normal tissue:
+\\\\
+If we were interested in inferring differential mRNA expression hotspots, you would run \emph{DoExpMod}. As before, first you should run \emph{GenStatR} and \emph{DoIntExp} functions to generate statistics and integrate these with the network adjacency matrix. For instance, the workflow could look something like:
+<<>>=
+#statR.o <- GenStatR(exp.m,pheno.v);
+#intExp.o=DoIntExp(statR.o,adj.m)
+#ExpMod.o=DoExpMod(intExp.o,
+#                  nseeds=100,gamma=0.5,nMC=1000,
+#		   sizeR.v=c(1,100),minsizeOUT=10,
+#                  writeOUT=TRUE,nameSTUDY="TCGA-EC",ew.v=NULL)
+#
+@
+\includegraphics{ZWINTexp}
+There is one ExpMod example, a ZWINT-Centered Interactome Hotspot. In this case, application to the expression data of 118 endometrial cancers and 17 normal endometrials from TCGA, results in a module, centered around ZWINT, which is a known component of the kinetochore complex required for the mitotic spindle checkpoint and thus regulates cell proliferation.
+
+\section{Integration with "minfi" package}
+The function \emph{GenStatM} uses the normalised DNA methylation 450k data matrix with rownames annotated to 450k probe IDs. This kind of normalized 450k data matrix can be generated from raw data by many different tools. For instance, one could use \emph{minfi}, an existing Bioconductor package \cite{Aryee2014}. The simplified workflow would be something like:
+<<>>=
+#library(minfi);
+#require(IlluminaHumanMethylation450kmanifest);
+
+#baseDIR <- getwd();# the base dir of the Rawdata
+#setwd(baseDIR);
+#targets <- read.450k.sheet(baseDIR);#read the csv file.
+#RGset <- read.450k.exp(baseDIR); #Reads an entire 450k experiment 
+#                                  using a sample sheet
+#MSet.raw <- preprocessRaw(RGset);#Converts the Red/Green channel for an Illumina 
+#                                  methylation array into methylation signal,
+#                                  without using any normalization
+#beta.m <- getBeta(MSet.raw,type = "Illumina");# get normalized beta 
+#pval.m <- detectionP(RGset,type ="m+u")
+@
+Before passing on the beta.m object to GenStatM, we recommend adjusting the data for the type-2 probe bias, using for instance BMIQ \cite{Andrewbmiq}. BMIQ is freely available from either http://sourceforge.net/p/bmiq/, or the ChAMP Bioconductor package \cite{Morris2014}.\\\\
+
+
+\bibliographystyle{bmc_article}  % Style BST file
+\bibliography{IntroDoFEM}     % Bibliography file (usually '*.bib' )
+
+\end{document}

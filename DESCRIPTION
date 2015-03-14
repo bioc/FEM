@@ -1,0 +1,18 @@
+Package: FEM
+Type: Package
+Title: Identification of FunctionalEpigenetic Modules
+Version: 2.0.0
+Date: 2014-02-17
+Author: Andrew E. Teschendorff and Yinming Jiao
+Maintainer: Andrew E. Teschendorff <andrew@picb.ac.cn>, Yinming Jiao
+        <20907099@mail.zju.edu.cn>
+Description: FEM can dentify interactome hotspots of differential
+        promoter methylation and differential ex-pression, where an
+        inverse association between promoter methylation and gene
+        expression is assumed.
+License: GPL (>=2)
+Depends: R (>= 2.10), Matrix, igraph, marray, corrplot, impute, limma,
+        org.Hs.eg.db, graph, BiocGenerics
+biocViews:
+        SystemsBiology,DNAMethylation,NetworkEnrichment,GeneRegulation,DifferentialMethylation,DifferentialExpression,Network
+Depends: AnnotationDbi,Matrix,marray,corrplot,igraph,impute,limma,org.Hs.eg.db
