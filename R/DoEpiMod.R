@@ -1,5 +1,5 @@
 DoEpiMod <-
-function(statM.m,adj.m,nseeds=100,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="X",ew.v=NULL){
+function(intEpi.o,nseeds=100,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="X",ew.v=NULL){
 
 PasteVector <- function(v){
   vt <- v[1];
@@ -42,43 +42,28 @@ WriteOutPval <- function(pv.v,round.min=3,round.max=50){
   return(outpv.v);
 }
 
-#require(igraph);
-####################################
-###3generatte the annotaion matrix
-####################################
-annotation.m=matrix(nrow=nrow(statM.m),ncol=2)
-rownames(annotation.m)=rownames(statM.m)
-colnames(annotation.m)=c("EntrezID","GeneSymbol")
-annotation.m[,1]=rownames(statM.m)
-data(Entrez.GeneSybo.list);
-genesymbol=Entrez.GeneSybo.list[annotation.m[,1]]#extract the genesymbols
-length(genesymbol);
-v=c();
-#for(i in 1:length(genesymbol)){v=c(v,genesymbol[[i]])}
-for(i in 1:length(genesymbol)){if(length(genesymbol[[i]])==0){gene="None"}else{gene=genesymbol[[i]]};v=c(v,gene)}
-annotation.m[,2]=v
-anno.m=annotation.m
-if(length(statM.m[,1])==84){#determine whether it is toydata.
-data(toydata);
-anno.m=toydata$annotation;
-}
-#########################end of generation annoataion matrix
-#if(!identical(rownames(statM.m),rownames(statR.m))){
-#    print("Please provide gene identifiers as rownames to statM.v and statR.v, and these should be identical");
-#}
-### ensure that variance of statistics are scaled so they are comparable
+require(igraph);
+require(org.Hs.eg.db);
+
+statM.m <- intEpi.o$statM;
+adj.m <- intEpi.o$adj;
 statM.v <- statM.m[,1];
-#statR.v <- statR.m[,1];
-#sdD <- sqrt(var(statM.v));
-#sdR <- sqrt(var(statR.v));
-#statR.v <- statR.v*sdD/sdR ;
-
-### integrate statistics 
 nameSTUDY <- paste("Epi-",nameSTUDY,sep="");
-
 statI.v <- abs(statM.v);
-#statI.v[which(sign(statM.v)==sign(statR.v))] <- 0; ### inconsistent ones set to zero
 names(statI.v) <- rownames(statM.m);
+
+x <- org.Hs.egSYMBOL;
+mapped_genes <- mappedkeys(x)
+xx <- as.list(x[mapped_genes])
+mapEIDtoSYM.v <- unlist(xx);
+map.idx <- match(rownames(adj.m),names(mapEIDtoSYM.v));
+anno.m <- cbind(rownames(adj.m),mapEIDtoSYM.v[map.idx]);
+colnames(anno.m) <- c("EntrezID","Symbol");
+if(length(statM.m[,1])==84){
+        anno.m=matrix(ncol=2,nrow=84)
+        anno.m[,1]=1:84
+        anno.m[,2]=paste("Gene",anno.m[,1],sep="")
+}
 
 ### find subnetworks around seeds
 ntop <- nseeds;
@@ -189,7 +174,7 @@ for(m in selMod.idx){
 colnames(topmodN.m) <- c("EntrezID(Seed)","Symbol(Seed)","Size","Mod","P","Genes");
 
 if(writeOUT){
-write.table(topmodN.m,file=paste("topFEM-",nameSTUDY,".txt",sep=""),quote=FALSE,sep="\t",row.names=FALSE);
+write.table(topmodN.m,file=paste("topEPI-",nameSTUDY,".txt",sep=""),quote=FALSE,sep="\t",row.names=FALSE);
 }
 
 seltopmodN.lm <- list();
@@ -210,8 +195,8 @@ for(m in 1:length(selMod.idx)){
   out.m[,3] <- round(as.numeric(out.m[,3]),2);
   out.m[,4] <- WriteOutPval(as.numeric(out.m[,4]),round.max=100);  
   out.m[,5] <- round(as.numeric(out.m[,5]),2);  
-  write(paste(seedsSYM.v[m]," (",nrow(seltopmodN.lm[[m]]), " genes)",sep=""),file=paste("topFEMLists-",nameSTUDY,".txt",sep=""),ncolumns=1,append=TRUE);
-  write.table(out.m,file=paste("topFEMLists-",nameSTUDY,".txt",sep=""),quote=FALSE,sep="\t",row.names=FALSE,append=TRUE);
+  write(paste(seedsSYM.v[m]," (",nrow(seltopmodN.lm[[m]]), " genes)",sep=""),file=paste("topEpiModLists-",nameSTUDY,".txt",sep=""),ncolumns=1,append=TRUE);
+  write.table(out.m,file=paste("topEpiModLists-",nameSTUDY,".txt",sep=""),quote=FALSE,sep="\t",row.names=FALSE,append=TRUE);
 }
 
 }
@@ -219,7 +204,7 @@ for(m in 1:length(selMod.idx)){
 
 
 
-return(list(size=sizeN.v,mod=modN.v,pvalue=modNpv.v,selmod=selMod.idx,fem=topmodN.m,topmod=seltopmodN.lm,sgc=sgcN.lo,ew=tmpW.v));
+return(list(size=sizeN.v,mod=modN.v,pv=modNpv.v,selmod=selMod.idx,fem=topmodN.m,topmod=seltopmodN.lm,sgc=sgcN.lo,ew=tmpW.v,adj=intEpi.o$adj));
 
 
 }

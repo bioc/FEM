@@ -1,5 +1,5 @@
 DoFEMbi <-
-function(statM.m,statR.m,adj.m,nseeds=100,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="X",ew.v=NULL){
+function(intFEM.o,nseeds=100,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="X",ew.v=NULL){
 
 PasteVector <- function(v){
   vt <- v[1];
@@ -41,40 +41,32 @@ WriteOutPval <- function(pv.v,round.min=3,round.max=50){
   }
   return(outpv.v);
 }
-####################################
-###3generatte the annotaion matrix
-####################################
-annotation.m=matrix(nrow=nrow(statM.m),ncol=2)
-rownames(annotation.m)=rownames(statM.m)
-colnames(annotation.m)=c("EntrezID","GeneSymbol")
-annotation.m[,1]=rownames(statM.m)
-#library(org.Hs.eg.db);
-#use  org.Hs.egSYMBOL it is ok when run the source("DoInt450k.R"),however when in hte pacakge it failed with errori: Error in as.list.default(x[mapped_genes]) :  no method for coercing this S4 class to a vector:
-#x <- org.Hs.egSYMBOL
-# Get the gene symbol that are mapped to an entrez gene identifiers
-#mapped_genes <- mappedkeys(x)
-# Convert to a list
-#xx <- as.list(x[mapped_genes])
-data(Entrez.GeneSybo.list);
-genesymbol=Entrez.GeneSybo.list[annotation.m[,1]]#extract the genesymbols
-length(genesymbol);
-v=c();
-#for(i in 1:length(genesymbol)){v=c(v,genesymbol[[i]])}
-for(i in 1:length(genesymbol)){if(length(genesymbol[[i]])==0){gene="None"}else{gene=genesymbol[[i]]};v=c(v,gene)}
-annotation.m[,2]=v
-anno.m=annotation.m
-if(length(statM.m[,1])==84){#determine whether it is toydata.
-data(toydata);
-anno.m=toydata$annotation;
+
+require(igraph);
+require(org.Hs.eg.db);
+
+adj.m <- intFEM.o$adj;
+statM.m <- intFEM.o$statM;
+statR.m <- intFEM.o$statR;
+if(!identical(rownames(statM.m),rownames(adj.m))){
+    print("Please ensure that rownames of statM.m and adj.m are identical");
 }
-#########################end of generation annoataion matrix
+if(!identical(rownames(statR.m),rownames(adj.m))){
+    print("Please ensure that rownames of statR.m and adj.m are identical");
+}
+nameSTUDY <- paste("Both-",nameSTUDY,sep="");
 
-
-
-#require(igraph);
-
-if(!identical(rownames(statM.m),rownames(statR.m))){
-    print("Please provide gene identifiers as rownames to statM.v and statR.v, and these should be identical");
+x <- org.Hs.egSYMBOL;
+mapped_genes <- mappedkeys(x)
+xx <- as.list(x[mapped_genes])
+mapEIDtoSYM.v <- unlist(xx);
+map.idx <- match(rownames(adj.m),names(mapEIDtoSYM.v));
+anno.m <- cbind(rownames(adj.m),mapEIDtoSYM.v[map.idx]);                                                            
+colnames(anno.m) <- c("EntrezID","Symbol");
+if(length(statM.m[,1])==84){
+	anno.m=matrix(ncol=2,nrow=84)
+	anno.m[,1]=1:84
+	anno.m[,2]=paste("Gene",anno.m[,1],sep="")
 }
 ### ensure that variance of statistics are scaled so they are comparable
 statM.v <- statM.m[,1];
@@ -84,11 +76,8 @@ sdR <- sqrt(var(statR.v));
 statR.v <- statR.v*sdD/sdR ;
 
 ### integrate statistics 
-nameSTUDY <- paste("Both-",nameSTUDY,sep="");
-
-#statI.v <- 0.5*abs(statM.v-statR.v);
 statI.v <-( Heaviside(statM.v)*Heaviside(-statR.v)+ Heaviside(-statM.v)*Heaviside(statR.v))*abs(statM.v-statR.v);
-statI.v[which(sign(statM.v)==sign(statR.v))] <- 0; ### inconsistent ones set to zero
+statI.v[which(sign(statM.v)==sign(statR.v))] <- 0; ### only anticorrelative relations are considered
 names(statI.v) <- rownames(statM.m);
 
 ### find subnetworks around seeds
@@ -230,9 +219,7 @@ for(m in 1:length(selMod.idx)){
 }
 
 
-
-
-return(list(size=sizeN.v,mod=modN.v,pvalue=modNpv.v,selmod=selMod.idx,fem=topmodN.m,topmod=seltopmodN.lm,sgc=sgcN.lo,ew=tmpW.v));
+return(list(size=sizeN.v,mod=modN.v,pv=modNpv.v,selmod=selMod.idx,fem=topmodN.m,topmod=seltopmodN.lm,sgc=sgcN.lo,ew=tmpW.v,adj=intFEM.o$adj));
 
 
 }

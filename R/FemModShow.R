@@ -1,6 +1,7 @@
 FemModShow <-
-function(mod,name="mod",edgeweight,adjacency,mode= "integration"){
-
+function(mod,name,fem.o,mode= "Integration"){
+edgeweight=fem.o$ew
+adjacency=fem.o$adj
 ###############add shape to the vertex of igraph
 
 mycircle <- function(coords, v=NULL, params) {
@@ -144,7 +145,7 @@ add.vertex.shape("fcircle", clip=igraph.shape.noclip,plot=mycircle, parameters=l
 
 
 pdf(paste(name,".mod.pdf",sep=""))
-if(mode =="integration"){
+if(mode =="Integration"){
 #plot(mod.graph,vertex.shape="fcircle", vertex.frame.color=V(mod.graph)$vrcolor,vertex.frame.width=6,vertex.label=E(mod.graph)$label,vertex.label.dist=1,vertex.label.cex=0.7,vertex.label.font=3,edge.color="grey",edge.width=E(mod.graph)$edgewidth,main=paste(name,"-centred module",sep=""))
 #plot(HAND2.graph,vertex.shape="fcircle", vertex.frame.color=V(HAND2.graph)$vrcolor,vertex.frame.width=6,vertex.label=E(HAND2.graph)$label,vertex.label.dist=1,vertex.label.cex=label.cex,vertex.label.font=3,edge.color="grey",edge.width=E(HAND2.graph)$edgewidth)
 	plot(mod.graph,layout=layout.fruchterman.reingold,vertex.shape="fcircle", vertex.frame.color=V(mod.graph)$vrcolor,vertex.frame.width=4,vertex.size=10,vertex.label=label.v,vertex.label.dist=0.6,vertex.label.cex=V(mod.graph)$label.cex,vertex.label.font=3,edge.color="grey",edge.width=E(mod.graph)$edgewidth)

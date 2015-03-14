@@ -18,31 +18,11 @@
 
 
 test.FEM <- function() {
-  #load toydata 
-  data(toydata);
+  #load Toydata 
+  data(Toydata);
+intFEM.o <- list(statM=Toydata$statM,statR=Toydata$statR,adj=Toydata$adj);
+DoFEMbi(intFEM.o,nseeds=1,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TEST",ew.v=NULL);
   #test DoFEMbi function
-  DoFEMbi_test.o  <- with(toydata,
-                             DoFEMbi(statM,statR,adjacency,
-                             nseeds=1,gamma=0.5,nMC=1000,
-                             sizeR.v=c(1,100),minsizeOUT=10,
-                             writeOUT=TRUE,
-                             nameSTUDY="TEST_DoFEMbi",ew.v=NULL));
-  #test DoEpiMod function
-  DoEpiMod_test.o<- with(toydata,
-			DoEpiMod(statM,adjacency,nseeds=1,gamma=0.5,nMC=1000,
-				sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,
-				nameSTUDY="TEST_DoEpiMod",ew.v=NULL));
-  #test DoExpMod function
-  DoExpMod_test.o<- with(toydata,
-			DoEpiMod(statR,adjacency,nseeds=1,gamma=0.5,nMC=1000,
-                                sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,
-                                nameSTUDY="TEST_DoExpMod",ew.v=NULL));
-  #load realdata and DoFEMbi returned object fembi.o which is drived from realdata, we provide it here because it takes a little long time to generate it
-  data(realdata);
-  data(fembi.o);
-  HAND2.mod<-fembi.o$topmod$HAND2;
-  #test FemModShow function 
-  HAND2.graphNEL.o=FemModShow(fembi.o$topmod$HAND2,name="HAND2",fembi.o$ew,realdata$adjacency)
 }
 
 
