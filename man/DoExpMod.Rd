@@ -81,7 +81,7 @@ A systems-level integrative framework for genome-wide DNA methylation and gene e
 \examples{
 data(Toydata);
 intExp.o <- list(statR=Toydata$statR,adj=Toydata$adj);
-ExpMod.o=DoExpMod(intExp.o,nseeds=100,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TEST",ew.v=NULL);
+ExpMod.o=DoExpMod(intExp.o,nseeds=1,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TEST",ew.v=NULL);
 #You can also test on the Realdata which contains RNA expression of 17
 #normal and 118 endometrial cancer samples. Since running on the realdata is time-consuming,  we comment it out.   
 #data(Realdata);
