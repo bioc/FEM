@@ -6,12 +6,7 @@ Date: 2015-03-14
 Author: Andrew E. Teschendorff and Yinming Jiao
 Maintainer: Andrew E. Teschendorff <andrew@picb.ac.cn>, Yinming Jiao
         <20907099@mail.zju.edu.cn>
-Description:The FEM package performs a systems-level integrative analysis of DNA
-methylationa and gene expression. It seeks modules of functionally
-related genes which exhibit differential promoter DNA methylation and
-differential expression, where an inverse association between promoter
-DNA methylation and gene expression is assumed. For full details, see
-Jiao et al Bioinformatics 2014.
+Description:The FEM package performs a systems-level integrative analysis of DNA methylationa and gene expression. It seeks modules of functionally related genes which exhibit differential promoter DNA methylation and differential expression, where an inverse association between promoter DNA methylation and gene expression is assumed. For full details, see Jiao et al Bioinformatics 2014.
 License: GPL (>=2)
 Depends: R (>= 2.10), Matrix, igraph, marray, corrplot, impute, limma,
         org.Hs.eg.db, graph, BiocGenerics
