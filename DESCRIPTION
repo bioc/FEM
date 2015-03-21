@@ -1,7 +1,7 @@
 Package: FEM
 Type: Package
-Title: Identification of FunctionalEpigenetic Modules
-Version: 2.1.2
+Title: Identification of Functional Epigenetic Modules
+Version: 2.1.3
 Date: 2015-03-14
 Author: Yinming Jiao and Andrew E. Teschendorff
 Maintainer: Yinming Jiao <20907099@mail.zju.edu.cn>,Andrew E. Teschendorff <andrew@picb.ac.cn>

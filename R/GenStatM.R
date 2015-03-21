@@ -8,27 +8,6 @@ data("probe450kfemanno");
 extractFn <- function(tmp.v,ext.idx){
     return(tmp.v[ext.idx]);
 }
-avVEC <- function(data.m,idx.v){
- av.v <- apply(matrix(data.m[idx.v,],nrow=length(idx.v),ncol=ncol(data.m)),2,mean,na.rm=T);
- return(av.v);
-}
-
-
-MeanRep <- function(tmp.m){
-
- tmp.v <- union(rownames(tmp.m),rownames(tmp.m));
- ng <- length(tmp.v);
- newtmp.m <- matrix(nrow=ng,ncol=ncol(tmp.m));
- for( g in 1:ng){
-  which(rownames(tmp.m)==tmp.v[g]) -> tmp.idx;
-  newtmp.m[g,] <- avVEC(tmp.m,tmp.idx);
-  #print(paste(g," done out of ",ng,sep=""));
- }
- colnames(newtmp.m) <- colnames(tmp.m);
- rownames(newtmp.m) <- tmp.v;
-
- return(newtmp.m);
-}
 
 require(igraph);
 require(limma);
@@ -44,7 +23,10 @@ group.idx <- which(probeInfo.lv[[3]]==g);
 tmp.m <- dnaM.m[group.idx,];
 rownames(tmp.m) <- eid450k.v[group.idx];
 sel.idx <- which(is.na(rownames(tmp.m))==FALSE);
-beta.lm[[g]] <- MeanRep(tmp.m[sel.idx,]);
+group.tmp.m=tmp.m[sel.idx,]
+nL <- length(levels(factor(rownames(group.tmp.m))));
+nspg.v <- summary(factor(rownames(group.tmp.m)),maxsum=nL);
+beta.lm[[g]] <- rowsum(group.tmp.m,group=rownames(group.tmp.m))/nspg.v;
 print(paste("Done for regional gene group ",g,sep=""));
 }
 

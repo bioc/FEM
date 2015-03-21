@@ -6,34 +6,15 @@ if(length(grep("[a-zA-Z]",rownames(exp.m)))!=0){print("ERROR: The rownames of ex
 ### Library needed
 require(limma);
 ### average probes mapping to the same gene
-#nspg.v <- summary(factor(rownames(exp.m)),maxsum = 10000000);## maxsum : integer, indicating how many levels should be shown for ‘factor’s
-#avexp.m <- rowsum(exp.m,group=rownames(exp.m))/nspg.v;#the m=rowsum(tmp.m,group=rownames(tmp.m)), the rownames(m) is same to names(nspg.v)
-
 extractFn <- function(tmp.v,ext.idx){
     return(tmp.v[ext.idx]);
 }
-avVEC <- function(data.m,idx.v){
- av.v <- apply(matrix(data.m[idx.v,],nrow=length(idx.v),ncol=ncol(data.m)),2,mean,na.rm=T);
- return(av.v);
-}
+
+nL <- length(levels(factor(rownames(exp.m))));
+nspg.v <- summary(factor(rownames(exp.m)),maxsum=nL);
+avexp.m <- rowsum(exp.m,group=rownames(exp.m))/nspg.v;
 
 
-MeanRep <- function(tmp.m){
-
- tmp.v <- union(rownames(tmp.m),rownames(tmp.m));
- ng <- length(tmp.v);
- newtmp.m <- matrix(nrow=ng,ncol=ncol(tmp.m));
- for( g in 1:ng){
-  which(rownames(tmp.m)==tmp.v[g]) -> tmp.idx;
-  newtmp.m[g,] <- avVEC(tmp.m,tmp.idx);
-  #print(paste(g," done out of ",ng,sep=""));
- }
- colnames(newtmp.m) <- colnames(tmp.m);
- rownames(newtmp.m) <- tmp.v;
-
- return(newtmp.m);
-}
-avexp.m=MeanRep(exp.m)
 
 ### construct model matrix
 sampletype.f <- as.factor(pheno.v);

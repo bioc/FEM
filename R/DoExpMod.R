@@ -61,11 +61,6 @@ mapEIDtoSYM.v <- unlist(xx);
 map.idx <- match(rownames(adj.m),names(mapEIDtoSYM.v));
 anno.m <- cbind(rownames(adj.m),mapEIDtoSYM.v[map.idx]);
 colnames(anno.m) <- c("EntrezID","Symbol");
-if(length(statR.m[,1])==84){
-        anno.m=matrix(ncol=2,nrow=84)
-        anno.m[,1]=1:84
-        anno.m[,2]=paste("Gene",anno.m[,1],sep="")
-}
 
 ### find subnetworks around seeds
 ntop <- nseeds;
