@@ -61,13 +61,10 @@ mapped_genes <- mappedkeys(x)
 xx <- as.list(x[mapped_genes])
 mapEIDtoSYM.v <- unlist(xx);
 map.idx <- match(rownames(adj.m),names(mapEIDtoSYM.v));
-anno.m <- cbind(rownames(adj.m),mapEIDtoSYM.v[map.idx]);                                                            
+anno.m <- cbind(rownames(adj.m),mapEIDtoSYM.v[map.idx]);
 colnames(anno.m) <- c("EntrezID","Symbol");
-if(length(statM.m[,1])==84){
-	anno.m=matrix(ncol=2,nrow=84)
-	anno.m[,1]=1:84
-	anno.m[,2]=paste("Gene",anno.m[,1],sep="")
-}
+
+
 ### ensure that variance of statistics are scaled so they are comparable
 statM.v <- statM.m[,1];
 statR.v <- statR.m[,1];
@@ -123,6 +120,7 @@ for(v in 1:ntop){
  print(paste("Done for seed ",v,sep=""));
 }
 names(sizeN.v) <- seedsN.v;
+print("Module Sizes=");
 print(sizeN.v);
 ### compute modularities
 modN.v <- vector();
@@ -131,6 +129,7 @@ for(v in 1:ntop){
  modN.v[v] <- mean(get.edge.attribute(subgr.o,name="weight"))
 }
 names(modN.v) <- seedsN.v;
+print("Modularity values=");
 print(modN.v);
 
 ### now determine significance against randomisation of profiles
@@ -217,7 +216,6 @@ for(m in 1:length(selMod.idx)){
 }
 
 }
-
 
 return(list(size=sizeN.v,mod=modN.v,pv=modNpv.v,selmod=selMod.idx,fem=topmodN.m,topmod=seltopmodN.lm,sgc=sgcN.lo,ew=tmpW.v,adj=intFEM.o$adj));
 

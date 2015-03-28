@@ -1,14 +1,15 @@
 Package: FEM
 Type: Package
 Title: Identification of Functional Epigenetic Modules
-Version: 2.1.3
-Date: 2015-03-14
-Author: Yinming Jiao and Andrew E. Teschendorff
-Maintainer: Yinming Jiao <20907099@mail.zju.edu.cn>,Andrew E. Teschendorff <andrew@picb.ac.cn>
-Description:The FEM package performs a systems-level integrative analysis of DNA methylationa and gene expression. It seeks modules of functionally related genes which exhibit differential promoter DNA methylation and differential expression, where an inverse association between promoter DNA methylation and gene expression is assumed. For full details, see Jiao et al Bioinformatics 2014.
+Version: 2.1.4
+Date: 2015-03-27
+Author: Andrew E. Teschendorff and Yinming Jiao
+Maintainer: Andrew E. Teschendorff <andrew@picb.ac.cn>
+Description: The FEM package performs a systems-level integrative analysis of DNA methylation and gene expression data. It seeks modules of functionally related genes which exhibit differential promoter DNA methylation and differential expression, where an inverse association between promoter DNA methylation and gene expression is assumed. For full details, see Jiao et al Bioinformatics 2014.
 License: GPL (>=2)
-Depends: R (>= 2.10), Matrix, igraph, marray, corrplot, impute, limma,
-        org.Hs.eg.db, graph, BiocGenerics
+Depends:
+        AnnotationDbi,Matrix,marray,corrplot,igraph,impute,limma,org.Hs.eg.db
 biocViews:
-        SystemsBiology,DNAMethylation,NetworkEnrichment,GeneRegulation,DifferentialMethylation,DifferentialExpression,Network
-Depends: AnnotationDbi,Matrix,marray,corrplot,igraph,impute,limma,org.Hs.eg.db
+        SystemsBiology,NetworkEnrichment,DifferentialMethylation,DifferentialExpression
+NeedsCompilation: no
+Packaged: 2015-03-27 08:55:14 UTC; andrew

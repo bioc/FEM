@@ -39,7 +39,7 @@ graph is generated and saved as a "X.pdf" file with "X" the name given
 in the argument to the function. 
 }
 \references{
-A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control. Jiao YM, Widschwendter M, Teschendorff AE. Bioinformatics. 2014;30(16):2360-2366
+A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control. Jiao Y, Widschwendter M, Teschendorff AE. Bioinformatics. 2014;30(16):2360-2366
 }
 \author{
 "Yinming Jiao"<20907099@zju.edu.cn>, "Andrew E Teschendorff"<andrew@picb.ac.cn>
@@ -54,7 +54,6 @@ A systems-level integrative framework for genome-wide DNA methylation and gene e
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-data(Realdata$fembi.o)
 data(Realdata)
 FemModShow(Realdata$fembi.o$topmod$HAND2,name="HAND2",Realdata$fembi.o)
 % Add one or more standard keywords, see file 'KEYWORDS' in the

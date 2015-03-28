@@ -39,7 +39,7 @@ the subsequent inference}
 \item{avbeta}{average DNA methylation data matrix mapped to unique Entrez IDs}
 }
 \references{
-A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control. Jiao YM, Widschwendter M, Teschendorff AE. Bioinformatics. 2014;30(16):2360-2366
+A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control. Jiao Y, Widschwendter M, Teschendorff AE. Bioinformatics. 2014;30(16):2360-2366
 }
 \author{
 "Yinming Jiao"<20907099@zju.edu.cn>, "Andrew E Teschendorff"<andrew@picb.ac.cn>

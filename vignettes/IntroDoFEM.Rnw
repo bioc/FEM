@@ -4,7 +4,7 @@
 %\VignetteKeyword{promoter methylation}
 %\VignetteKeyword{interactome hotspots}
 \documentclass[a4paper]{article}
-\usepackage{cite} % Make references as [1-4], not [1,2,3,4]
+%\usepackage{cite} % Make references as [1-4], not [1,2,3,4]
 \usepackage{url}  % Formatting web addresses
 \usepackage{ifthen}  % Conditional
 \usepackage{multicol}   %Columns
@@ -56,11 +56,11 @@ To load the FEM package in your R session,
 <<>>=
 library("FEM");	
 @
-We demonstrate the functionality of FEM using first a simulated toy dataset. Briefly, the toy dataset consists of a small random graph weighted gene network, with a clique embedded in it. To load it into the session, use 
+We demonstrate the functionality of FEM using first a simulated toy dataset. Briefly, the toy dataset consists of a small random graph gene network, with a clique embedded in it. To load it into the session, use 
 <<>>=
 data(Toydata)
 @
-The object \emph{Toydata} is a list and has five elements:
+The object \emph{Toydata} is a list and has four elements:
 %%%%%%
 <<>>=
 names(Toydata)
@@ -71,31 +71,30 @@ The first element is \emph{statM}
 head(Toydata$statM)
 @
 %%%%%%
-\emph{statM} is a matrix of t-statistics and p-values of differential methylation (one row for each gene promoter) with rownames annotated with a geneID (here just an index). There are 84 rows because the maximally connected component of the 100-node random graph generated was of size 84. Most of the rows have statistics which have been simulated to be close to zero (between -0.5 and 0.5), meaning that for these there is no association between DNA methylation and the phenotype of interest (POI). There are also ten randomly selected probes whose t-statistics are randomly chosen to lie between 2 and 5, meaning that for these promoters high methylation is associated positively with the POI. \\
+\emph{statM} is a matrix of differential DNA methylation t-statistics and P-values (one row for each gene promoter) with rownames annotated to arbitrary entrez gene IDs. There are 84 rows because the maximally connected component of the original 100-node random graph was of size 84. Most of the rows have statistics which have been simulated to be close to zero (between -0.5 and 0.5), meaning that for these there is no association between DNA methylation and the phenotype of interest (POI). There are also ten randomly selected probes/genes whose t-statistics are randomly chosen to lie between 2 and 5, meaning that for these promoters high methylation is associated positively with the POI. \\
 %%%%%%
-Now lets's check the 10 genes (here labeled merely by an index) whose t-statistics is larger than 2: 
+Now lets's check which 10 genes have t-statistics larger than 2: 
 <<>>=
-as.vector(which(Toydata$statM[,1]>2))->tennodes;
+rownames(Toydata$statM)[which(Toydata$statM[,1]>2)]->tennodes;
 tennodes;
 @
 This should agree with the tennodes entry of \emph{Toydata}. The second member is \emph{statR}
 <<>>=
 head(Toydata$statR)
 @
-\emph{statR} is a matrix of t-statistics and p-values of differential mRNA expression (same dimension as \emph{statM.m} and ordered in same way) with rownames annotated with the same index gene ID. The t-statistics of the previously selected 10 genes are set to lie between -2 and -5. Thus, this models the case of ten promoters which are underexpressed due to hypermethylation.\\\\
-%%%%%%
-The following command identifies the index positions of genes that are significantly underexpressed. They agree with those that are hypermethylated: 
+\emph{statR} is a matrix of differential expression t-statistics and P-values (same dimension as \emph{statM.m} and ordered in same way) with rownames annotated with the same Entrez gene ID. The t-statistics of the previously selected 10 genes are set to lie between -2 and -5. Thus, the toydata object models the case of ten promoters which are underexpressed due to hypermethylation. Indeed, the following command identifies the genes that are significantly underexpressed. They agree with those that are hypermethylated: 
 <<>>=
-as.vector(which(Toydata$statR[,1]< -2));
+rownames(Toydata$statM)[which(Toydata$statR[,1]< -2)];
 @
 %%%%%%
-The third member is \emph{adjacency}. This is a adjacency matrix, with number of rows and columns equal to rows of statR (or statM), ordered in same way and with same gene identifier. The graph is connected, and was constructed as the maximally connected subgraph of a 100-node random graph (Erdos-Renyi graph). Specifically, the original random graph was generated with \emph{igraph::erdos.renyi.game(100, 2/100)} and then the solitary nodes were removed, resulting in a connected network of 84 nodes/genes.\\
+The third member is \emph{adjacency}. This is the adjacency matrix, with number of rows and columns equal to the number of rows of statR (or statM), ordered in same way and with same gene identifier. The graph is connected, and was constructed as the maximally connected subgraph of a 100-node random graph (Erdos-Renyi graph). Specifically, the original random graph was generated with \emph{igraph::erdos.renyi.game(100, 2/100)} and then the solitary nodes were removed, resulting in a maximally connected subnetwork of 84 nodes/genes.\\
 We note that the 10 nodes which are differentially methylated and differentially expressed, form a clique, meaning that each of these ten nodes is connected to each other. So they belong to a deliberately created module with high absolute differential methylation and differential expression t-statistics. They are indicated in the following plot.\\\\
 %%%%%%---Plot the net with 10 node
 Plot this network from \emph{adjacency} with the ten nodes marked as a group. 
 <<fig=TRUE>>=
+mod.idx <- match(Toydata$tennodes,rownames(Toydata$adj));
 plot.igraph(graph.adjacency(Toydata$adjacency,mod="undirected"),
-vertex.size=8,mark.groups=Toydata$tennodes,mark.col="yellow")
+vertex.size=8,mark.groups=mod.idx,mark.col="yellow")
 @
 %%%%%%
  \\
@@ -109,10 +108,10 @@ intFEM.o <- list(statM=Toydata$statM,statR=Toydata$statR,adj=Toydata$adj);
 DoFEMtoy.o  <- DoFEMbi(intFEM.o,nseeds=1,gamma=0.5,nMC=1000,
 sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TOY",ew.v=NULL);
 @
-Some of the arguments of this function are worth described here:\\\\
-\textbf{nseeds:} the number of seeds/modules to search for. \\\\
-\textbf{gamma:} the tuning parameter of the spin-glass module detection algorithm. This parameter is very important because it controls the average module size. Default value generally leads to modules in the desired size range of 10 to 100 genes.\\\\
-\textbf{nMC:} number of Monte Carlo runs for establishing statistical significance of modularity values under randomisation of the molecular profiles on the network.\\\\
+Some of the arguments of this function are worth describing here:\\\\
+\textbf{nseeds:} This is the number of seeds/modules to search for. \\\\
+\textbf{gamma:} This is the tuning parameter of the spin-glass module detection algorithm. This parameter is very important because it controls the average module size. Default value generally leads to modules in the desired size range of 10 to 100 genes.\\\\
+\textbf{nMC:} The number of Monte Carlo runs for establishing statistical significance of modularity values under randomisation of the molecular profiles on the network.\\\\
 You can also use "sizeR.v" to set the desired size range for modules, "minsizeOUT" to set the minimum size of modules to report as interesting and "writeOUT" to indicate whether to write out tables in text format.\\\\
 There are two output files summarising the results of the \emph{DoFEMbi} function. One output file contains colums which describe the following: 
 \begin{itemize}
@@ -128,16 +127,16 @@ Let's check the details of the output:
 <<>>=
 DoFEMtoy.o$fem
 @
-We can see that we get one module with seed "Gene11" (hence its module name ``Gene11'') and it has 36 members.
+We can see that we get one module with seed gene "SGMS2" (entrez gene ID = 166929), hence module name ``SGMS2''. This module has 36 members.
 %%%%%%
-With the following command, we can have a look at the details of the first five genes in the "Gene11" module:
+With the following command, we can have a look at the details of the first five genes of the "SGMS2" module:
 <<>>=
-head(DoFEMtoy.o$topmod$Gene11,n=5L)
+head(DoFEMtoy.o$topmod$SGMS2,n=5L)
 @
-To show the "Gene11" module in the whole network, use:
+To show the SGMS2 module in the whole network, use:
 %%%%%% ---Plot the net with 36 node
 <<fig=TRUE>>=
-mod.idx<-as.numeric(DoFEMtoy.o$topmod$Gene11[,1])
+mod.idx<- match(DoFEMtoy.o$topmod$SGMS2[,1],rownames(Toydata$adj));
 plot.igraph(graph.adjacency(Toydata$adjacency,mod="undirected"),
 vertex.size=8,mark.groups=mod.idx,mark.col="yellow")
 @
@@ -145,7 +144,7 @@ vertex.size=8,mark.groups=mod.idx,mark.col="yellow")
  \\
 In order to check the effectiveness of FEM in detecting the true module, we compute the sensitivity, defined as the fraction of the truly associated genes that are captured by the inferred module:
 <<>>=
-sensitivity=length(intersect(tennodes,mod.idx))/length(tennodes);
+sensitivity=length(intersect(tennodes,rownames(Toydata$adj)[mod.idx]))/length(tennodes);
 sensitivity
 @
 Thus, we find that the sensitivity is 100$\%$, meaning that FEM inferred a module that contained all 10 genes that were truly differentially methylated and expressed. Although, specificity is not 100$\%$, this is to be expected since a larger module can still exhibit a higher than random average weight density.

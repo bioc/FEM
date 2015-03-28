@@ -18,8 +18,8 @@ Jiao et al Bioinformatics 2014.
 \tabular{ll}{
 Package: \tab FEM\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2014-01-22\cr
+Version: \tab 2.1.4\cr
+Date: \tab 2015-03-27\cr
 License: \tab GPL >2 \cr
 }
 }
@@ -30,7 +30,7 @@ License: \tab GPL >2 \cr
 1) Jiao Y, Widschwendter M, Teschendorff AE. A systems-level integrative
 framework for genome-wide DNA methylation and gene expression data
 identifies differential gene expression modules under epigenetic
-control. Bioinformatics 2014 Aug 15;30(16):2360-6.
+control. Bioinformatics 2014 Aug 15;30(16):2360-2366.
 
 2) Jones A, Teschendorff AE, Li Q, Hayward JD, Kannan A, et al. (2013) Role of dna methylation and epigenetic silencing of hand2 in endometrial cancer development. PLoS Med 10:e1001551.
 

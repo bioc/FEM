@@ -42,8 +42,8 @@ WriteOutPval <- function(pv.v,round.min=3,round.max=50){
   return(outpv.v);
 }
 
-require(igraph);
-require(org.Hs.eg.db);
+#require(igraph);
+#require(org.Hs.eg.db);
 
 statM.m <- intEpi.o$statM;
 adj.m <- intEpi.o$adj;
@@ -103,6 +103,7 @@ for(v in 1:ntop){
  print(paste("Done for seed ",v,sep=""));
 }
 names(sizeN.v) <- seedsN.v;
+print("Module sizes=");
 print(sizeN.v);
 ### compute modularities
 modN.v <- vector();
@@ -111,6 +112,7 @@ for(v in 1:ntop){
  modN.v[v] <- mean(get.edge.attribute(subgr.o,name="weight"))
 }
 names(modN.v) <- seedsN.v;
+print("Modularity values=");
 print(modN.v);
 
 ### now determine significance against randomisation of profiles

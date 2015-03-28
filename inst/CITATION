@@ -1,13 +1,17 @@
-citHeader("Please cite the paper below for the FEM software itself.")
-
-
-
-citEntry(entry="Article", 
-  title = "A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control.", 
-  author ="Jiao YM, Widschwendter M, Teschendorff AE", 
+bibentry("Article", 
+  title = "A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control", 
+  author ="Jiao Y, Widschwendter M, Teschendorff AE", 
   year = "2014", 
   journal = "Bioinformatics", 
   volume = "30", 
   number = "16", 
-  pages = "2360-2366" 
-) 
+  pages = "2360-2366",  
+
+
+  textVersion = "Andrew Teschendorff Group Link: http://www.picb.ac.cn/compsysg ",
+               
+  mfooter = "Please cite FEM when using it for data analysis."
+
+
+)
+ 

@@ -10,12 +10,11 @@ DoFEMbi identifies interactome hotspots of differential promoter
 methylation and differential expression in relation to a phenotype of interest, where an inverse association between methylation and gene expression is assumed.
 }
 \usage{
-DoFEMbi(intFEM.o, nseeds = 100, gamma = 0.5, nMC = 1000, sizeR.v = c(1,100), minsizeOUT = 10, writeOUT = TRUE, nameSTUDY = "X", ew.v = NULL)
+DoFEMbi(intFEM.o, nseeds = 100, gamma = 0.5, nMC = 1000, sizeR.v = c(1,100),
+  minsizeOUT = 10, writeOUT = TRUE, nameSTUDY = "X", ew.v = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-
-Arguments:
 
   \item{intFEM.o}{The output of the DoFEMbi function.}
   \item{nseeds}{An integer specifying the number of seeds and therefore
@@ -63,7 +62,7 @@ A list with following entries:
 }
 
 \references{
-A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control. Jiao YM, Widschwendter M, Teschendorff AE. Bioinformatics. 2014;30(16):2360-2366
+A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control. Jiao Y, Widschwendter M, Teschendorff AE. Bioinformatics. 2014;30(16):2360-2366
 }
 \author{
 "Yinming Jiao"<20907099@zju.edu.cn>, "Andrew E Teschendorff"<andrew@picb.ac.cn>
@@ -81,11 +80,12 @@ A systems-level integrative framework for genome-wide DNA methylation and gene e
 \examples{
 data(Toydata);
 intFEM.o <- list(statM=Toydata$statM,statR=Toydata$statR,adj=Toydata$adj);
-DoFEMbi(intFEM.o,nseeds=1,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TEST",ew.v=NULL);
+DoFEMbi(intFEM.o,nseeds=1,gamma=0.5,nMC=1000,sizeR.v=c(1,100),
+ minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TEST",ew.v=NULL);
 #You can also test on the Realdata contains matched DNA methylation and RNA Expression of 17 normal and 118 cancer samples. Since running on the realdata is time-consuming, we comment it out.   
 #data(Realdata);
 #intFEM.o <- list(statM=Realdata$statM,statR=Realdata$statR,adj=Realdata$adjacency);
-#DoFEMbi(intFEM.o,nseeds=100,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TEST",ew.v=NULL);
+#DoFEMbi(intFEM.o,nseeds=100,gamma=0.5,nMC=1000,sizeR.v=c(1,100),nameSTUDY="TEST");
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

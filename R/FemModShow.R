@@ -30,9 +30,6 @@ mycircle <- function(coords, v=NULL, params) {
          })
 }
 
-#library("igraph");
-#library("marray");
-#library("corrplot");
 
 #mod is from fem result such as HAND2, hand2<-fembi.o$topmod$HAND2. 
 #overall ideas: give the mtval, rtval, vmcolor, vrcolor, label to vertex; give weight, edgewidth to the edge of realgraph. then subgraph the HAND2 mod
@@ -42,16 +39,25 @@ realgraph=graph.adjacency(adjacency,mode="undirected")
 #add the values
 E(realgraph)$weight= edgeweight#give the weight to the edges
 
-#V(realgraph)$mtval=realdata$statM[,1] #give the tvalue of Methylation on the vertex
-#V(realgraph)$rtval=realdata$statR[,1] #give the tvalue of Methylation on the vertex
-
-#there are vertex  1 edge width, 2 methylation colar, 3 rna expression, 4 gene symbol vertex label, 4 label size to provide to the igraph plot the other arguments need to set  are 5 label cex (size)
-#vertex.v=as.vector(V(realgraph))
-#edgevectro=as.vector(E(realgraph)))
-#head(fembi.o$ew)
 #################################################################################
-# 1 edge size
-E(realgraph)$edgewidth<-ifelse(E(realgraph)$weight<=1,0.5,E(realgraph)$weight/2)
+# 1 edge width size
+
+edge.width.v=E(realgraph)$weight
+
+idxbw02=which(edge.width.v<=2 && edge.width.v>0)
+idxbw25=which(edge.width.v>2 && edge.width.v<5)
+idxbw510=which(edge.width.v>=5 && edge.width.v<10)
+idxgt10=which(edge.width.v>=10)
+
+edge.width.v[idxbw02]=1/4*edge.width.v[idxbw02]
+edge.width.v[idxbw25]=1/2*edge.width.v[idxbw25]
+edge.width.v[idxbw510]=3/4*edge.width.v[idxbw510]
+edge.width.v[idxgt10]=10#the max edgewidth is fixed as 10
+
+idxlt025=which(edge.width.v<0.25)
+edge.width.v[idxlt025]=0.25#if the edgewidth is less than 0.25, it's too narrow to see. So fix the them with 0.25 
+
+E(realgraph)$edgewidth=edge.width.v
 
 
 #################################################################################
@@ -76,9 +82,7 @@ rtval.v=vector()
 for(i in V(mod.graph)$name){rtval.v=c(rtval.v,(as.vector(mod[i,"stat(mRNA)"])))} #add the 
 V(mod.graph)$rtval=rtval.v;
 print(rtval.v)
-#print(rtval.v)
-#V(realgraph)$mtval=realdata$statM[,1] #give the tvalue of Methylation on the vertex
-#V(realgraph)$rtval=realdata$statR[,1] #give the tvalue of Methylation on the vertex
+
 # add the vm.color, vr.color
 vm.color=rep(0,length(V(mod.graph)));
 vr.color=rep(0,length(V(mod.graph)));
@@ -107,11 +111,7 @@ print(trcolor.position)
 trcolor.position[which(trcolor.position<1)]<-1;
 trcolor.position[which(trcolor.position>100)]<-100;
 vr.color=trcolor.scheme[trcolor.position];
-#vr.color[which(V(mod.graph)$rtval>=2)]<-trcolor.scheme[100];
-#vr.color[which(V(mod.graph)$rtval<=(-2))]<-trcolor.scheme[1];
-#vr.color[which(V(mod.graph)$rtval>-1 & V(realgraph)$rtval<1)]<-"lightgrey"
-#vr.color[which(V(mod.graph)$rtval>=1)]<-"red"
-#vr.color[which(V(mod.graph)$rtval<(-1))]<-"green"
+
 V(mod.graph)$vrcolor<-vr.color# the rna expression color
 
 if(mode=="Exp"){
@@ -123,11 +123,6 @@ print(vr.color)
 #################################################################################
 #add the mod label value
 
-#!!!!!!!!!!!!!!!V(mod.graph)$label<-realdata$annotation[,2]
-
-
-#subnet the hand 2
-#V(mod.graph)$labels=label.v
 label.v=vector()
 for(i in V(mod.graph)$name){label.v=c(label.v,(as.vector(mod[i,"Symbol"])))} #add the V(mod.graph)$name's labels one by one from mod["$name","Symbol"]
 
@@ -146,49 +141,33 @@ add.vertex.shape("fcircle", clip=igraph.shape.noclip,plot=mycircle, parameters=l
 
 pdf(paste(name,".mod.pdf",sep=""))
 if(mode =="Integration"){
-#plot(mod.graph,vertex.shape="fcircle", vertex.frame.color=V(mod.graph)$vrcolor,vertex.frame.width=6,vertex.label=E(mod.graph)$label,vertex.label.dist=1,vertex.label.cex=0.7,vertex.label.font=3,edge.color="grey",edge.width=E(mod.graph)$edgewidth,main=paste(name,"-centred module",sep=""))
-#plot(HAND2.graph,vertex.shape="fcircle", vertex.frame.color=V(HAND2.graph)$vrcolor,vertex.frame.width=6,vertex.label=E(HAND2.graph)$label,vertex.label.dist=1,vertex.label.cex=label.cex,vertex.label.font=3,edge.color="grey",edge.width=E(HAND2.graph)$edgewidth)
+
 	plot(mod.graph,layout=layout.fruchterman.reingold,vertex.shape="fcircle", vertex.frame.color=V(mod.graph)$vrcolor,vertex.frame.width=4,vertex.size=10,vertex.label=label.v,vertex.label.dist=0.6,vertex.label.cex=V(mod.graph)$label.cex,vertex.label.font=3,edge.color="grey",edge.width=E(mod.graph)$edgewidth)
-#plot(mod.graph,vertex.shape="fcircle", vertex.frame.color=V(mod.graph)$vrcolor,vertex.frame.width=6,vertex.label=paste(sep="\n",V(mod.graph)$label,V(mod.graph)$mtval,V(mod.graph)$rtval),vertex.label.dist=0.8,vertex.label.cex=label.cex,vertex.label.font=3,edge.color="grey",edge.width=E(mod.graph)$edgewidth)
+
 
 	colorlegend(trcolor.scheme,seq(-2,2,0.5),ratio.colbar=0.3 ,xlim=c(-1.55,-1.4),ylim=c(-0.5,0),align="r",cex=0.5)
 	colorlegend(tmcolor.scheme,seq(-2,2,0.5),ratio.colbar=0.3 ,xlim=c(-1.55,-1.4),ylim=c(0.5,1),align="r",cex=0.5)
-#colorlegend(tmcolor.scheme,c("-2","-1.5"," ","0"," ","1.5","2"),ratio.colbar=0.3 ,xlim=c(-1.6,-1.4),ylim=c(0.5,1),align="r",cex=0.7)
+
 
 	text(-1.50, 0.43, c("t(DNAm)\nCore"),cex=0.6)
 	text(-1.50, -0.57,c("t(mRNA)\nBorder"),cex=0.6)
-#legend(50, 150, legend=c("assignTo","submitBy"), col=1:2, lwd=3, lty=c(1,2));
-#plot(mod.graph,vertex.shape="fcircle", vertex.frame.color=V(mod.graph)$vrcolor,vertex.frame.width=6,vertex.label=paste(sep="\n",E(mod.graph)$label,E(mod.graph)$mtval,E(mod.graph)$rtval),vertex.label.dist=1,edge.color="grey",edge.width=E(mod.graph)$edgewidth)
 
-#plot(mod.graph,ertex.shape="fcircle", vertex.frame.color=V(mod.graph)$vrcolor,vertex.frame.width=6,vertex.label=E(mod.graph)$name,vertex.label.dist=1,edge.color="grey",edge.width=E(mod.graph)$edgewidth)a
 }
 else if(mode =="Epi"){
 	# if the mode is Epi the frame need not to show
 	plot(mod.graph,layout=layout.fruchterman.reingold,vertex.frame.color=NA,vertex.size=10,vertex.label=label.v,vertex.label.dist=0.6,vertex.label.cex=V(mod.graph)$label.cex,vertex.label.font=3,edge.color="grey",edge.width=E(mod.graph)$edgewidth)
-#If you don't want vertices to have a frame, supply NA as the color name.
-#plot(mod.graph,vertex.shape="fcircle", vertex.frame.color=V(mod.graph)$vrcolor,vertex.frame.width=6,vertex.label=paste(sep="\n",V(mod.graph)$label,V(mod.graph)$mtval,V(mod.graph)$rtval),vertex.label.dist=0.8,vertex.label.cex=label.cex,vertex.label.font=3,edge.color="grey",edge.width=E(mod.graph)$edgewidth)
 
-	#colorlegend(trcolor.scheme,seq(-2,2,0.5),ratio.colbar=0.3 ,xlim=c(-1.55,-1.4),ylim=c(-0.5,0),align="r",cex=0.5)
 	colorlegend(tmcolor.scheme,seq(-2,2,0.5),ratio.colbar=0.3 ,xlim=c(-1.55,-1.4),ylim=c(0.5,1),align="r",cex=0.5)
-#colorlegend(tmcolor.scheme,c("-2","-1.5"," ","0"," ","1.5","2"),ratio.colbar=0.3 ,xlim=c(-1.6,-1.4),ylim=c(0.5,1),align="r",cex=0.7)
-
 	text(-1.50, 0.43, c("t(DNAm)"),cex=0.6)
-	#text(-1.50, -0.57,c("t(mRNA)\nBorder"),cex=0.6)
-
 
 }
 else if(mode =="Exp"){
-        #plot(mod.graph,layout=layout.fruchterman.reingold,vertex.shape="fcircle", vertex.frame.color=V(mod.graph)$vrcolor,vertex.frame.width=4,vertex.size=10,vertex.label=label.v,vertex.label.dist=0.6,vertex.label.cex=V(mod.graph)$label.cex,vertex.label.font=3,edge.color="grey",edge.width=E(mod.graph)$edgewidth)
+       
 	plot(mod.graph,layout=layout.fruchterman.reingold,vertex.frame.color=NA,vertex.size=10,vertex.label=label.v,vertex.label.dist=0.6,vertex.label.cex=V(mod.graph)$label.cex,vertex.label.font=3,edge.color="grey",edge.width=E(mod.graph)$edgewidth)
-#plot(mod.graph,vertex.shape="fcircle", vertex.frame.color=V(mod.graph)$vrcolor,vertex.frame.width=6,vertex.label=paste(sep="\n",V(mod.graph)$label,V(mod.graph)$mtval,V(mod.graph)$rtval),vertex.label.dist=0.8,vertex.label.cex=label.cex,vertex.label.font=3,edge.color="grey",edge.width=E(mod.graph)$edgewidth)
 
         colorlegend(trcolor.scheme,seq(-2,2,0.5),ratio.colbar=0.3 ,xlim=c(-1.55,-1.4),ylim=c(-0.5,0),align="r",cex=0.5)
-        #colorlegend(tmcolor.scheme,seq(-2,2,0.5),ratio.colbar=0.3 ,xlim=c(-1.55,-1.4),ylim=c(0.5,1),align="r",cex=0.5)
-#colorlegend(tmcolor.scheme,c("-2","-1.5"," ","0"," ","1.5","2"),ratio.colbar=0.3 ,xlim=c(-1.6,-1.4),ylim=c(0.5,1),align="r",cex=0.7)
 
-        #text(-1.50, 0.43, c("t(DNAm)\nCore"),cex=0.6)
         text(-1.50, -0.57,c("t(mRNA)"),cex=0.6)
-
 
 }
 dev.off()

@@ -1,7 +1,8 @@
 DoIntEpi450k <-
 function(statM.o,adj.m,c){
+
 if(length(grep("[a-zA-Z]",rownames(adj.m)))!=0){print("ERROR: The rownames of adj.m should be EntrezID");break}
-require(igraph);
+
 avbeta.m <- statM.o$avbeta;
 commonEID.v <- intersect(rownames(adj.m),rownames(avbeta.m));
 mapA.idx <- match(commonEID.v,rownames(adj.m));
@@ -24,9 +25,7 @@ tmpM.m <- tmpM.m[maxc.idx,];
 #### now extract statistics
 selcol.idx <- match(c("t","P.Value"),colnames(statM.o$top[[c]]));
 ordrow.idx <- match(rownames(tmpM.m),rownames(statM.o$top[[c]]));
-idINCL <- FALSE;
 if(length(intersect(c("ID"),colnames(statM.o$top[[c]])))==1){
- idINCL <- TRUE;
  ordrow.idx <- match(rownames(tmpM.m),statM.o$top[[c]][,1]);
 }
 statM.m <- statM.o$top[[c]][ordrow.idx,selcol.idx];

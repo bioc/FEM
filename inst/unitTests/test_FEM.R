@@ -19,7 +19,7 @@
 
 test.FEM <- function() {
   #load Toydata 
-  data(Toydata);
+data(Toydata);
 intFEM.o <- list(statM=Toydata$statM,statR=Toydata$statR,adj=Toydata$adj);
 DoFEMbi(intFEM.o,nseeds=1,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TEST",ew.v=NULL);
   #test DoFEMbi function

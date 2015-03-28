@@ -1,8 +1,8 @@
 DoIntFEM450k <-
 function(statM.o,statR.o,adj.m,cM,cR){
+
 if(length(grep("[a-zA-Z]",rownames(adj.m)))!=0){print("ERROR: The rownames of adj.m should be EntrezID");break}
 
-require(igraph);
 avbeta.m <- statM.o$avbeta;
 avexp.m <- statR.o$avexp;
 commonEID.v <- intersect(intersect(rownames(adj.m),rownames(avbeta.m)),rownames(avexp.m));
@@ -29,9 +29,7 @@ tmpR.m <- tmpR.m[maxc.idx,];
 #### now extract statistics
 selcol.idx <- match(c("t","P.Value"),colnames(statM.o$top[[cM]]));
 ordrow.idx <- match(rownames(tmpM.m),rownames(statM.o$top[[cM]]));
-idINCL <- FALSE;
 if(length(intersect(c("ID"),colnames(statM.o$top[[cM]])))==1){
- idINCL <- TRUE;
  ordrow.idx <- match(rownames(tmpM.m),statM.o$top[[cM]][,1]);
 }
 statM.m <- statM.o$top[[cM]][ordrow.idx,selcol.idx];
@@ -39,9 +37,7 @@ rownames(statM.m) <- rownames(tmpM.m);
 
 selcol.idx <- match(c("t","P.Value"),colnames(statR.o$top[[cR]]));
 ordrow.idx <- match(rownames(tmpR.m),rownames(statR.o$top[[cR]]));
-idINCL <- FALSE;
 if(length(intersect(c("ID"),colnames(statR.o$top[[cR]])))==1){
- idINCL <- TRUE;
  ordrow.idx <- match(rownames(tmpR.m),statM.o$top[[cR]][,1]);
 }
 statR.m <- statR.o$top[[cR]][ordrow.idx,selcol.idx];
