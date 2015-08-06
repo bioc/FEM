@@ -40,7 +40,7 @@ There are three main components to this vignette. These are:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Application to simulated data}
 
-Since FEM is a BioC package, the user first needs to install both R and Bioconductor. R is a free open source software project freely downloadable from the CRAN website \emph{http://cran.r-project.org/}. FEM has several package dependencies, such as igraph, marray, corrplot. So these need to be installed first. For example. to install igraph and corrplot,etc. Type \emph{install.packages(c("igraph","corrplot"))}. Since marray is a bioconductor package, we can install it with \\
+Since FEM is a BioC package, the user first needs to install both R and Bioconductor. R is a free open source software project freely downloadable from the CRAN website \emph{http://cran.r-project.org/}. FEM has several package dependencies, such as igraph, marray, corrplot and graph. So these need to be installed first, if they have not been installed already. For example. to install igraph and corrplot,etc. Type \emph{install.packages(c("igraph","corrplot"))}. Since marray is a bioconductor package, we can install it with \\
 \emph{source("http://bioconductor.org/biocLite.R");}\\
 \emph{biocLite("marray")}. \\
 Load them with
@@ -48,7 +48,8 @@ Load them with
 <<>>=
 library("igraph");
 library("marray");
-library("corrplot")
+library("corrplot");
+library("graph");
 @
 You can check your version of iGraph by entering  \emph{sessionInfo()\$otherPkgs\$igraph\$Version}. It should be at least version 0.6.\\ 
 %%%%%%

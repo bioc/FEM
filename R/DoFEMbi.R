@@ -42,8 +42,6 @@ WriteOutPval <- function(pv.v,round.min=3,round.max=50){
   return(outpv.v);
 }
 
-require(igraph);
-require(org.Hs.eg.db);
 
 adj.m <- intFEM.o$adj;
 statM.m <- intFEM.o$statM;
