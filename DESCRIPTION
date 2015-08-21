@@ -1,7 +1,7 @@
 Package: FEM
 Type: Package
 Title: Identification of Functional Epigenetic Modules
-Version: 2.5.1
+Version: 2.5.2
 Date: 2015-08-06
 Author: Andrew E. Teschendorff and Yinming Jiao
 Maintainer: Andrew E. Teschendorff <andrew@picb.ac.cn>
@@ -9,6 +9,7 @@ Description: The FEM package performs a systems-level integrative analysis of DN
 License: GPL (>=2)
 Depends:
         AnnotationDbi,Matrix,marray,corrplot,igraph,impute,limma,org.Hs.eg.db,graph,BiocGenerics
+Imports: graph
 biocViews:
         SystemsBiology,NetworkEnrichment,DifferentialMethylation,DifferentialExpression
 NeedsCompilation: no
