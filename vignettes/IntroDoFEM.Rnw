@@ -212,6 +212,7 @@ In the above examples we provided the statistics and adjacency matrix input obje
 \begin{itemize}
 \item dnaM.m: a normalised Illumina 450k DNA methylation data matrix, with rownames annotated to 450k probe IDs.
 \item pheno.v: phenotype vector corresponding to the samples/columns of dnaM.m. 
+\item chiptype: A parameter specifying the the input DNA methylation data matrix, it should be either "450k" for Illumina 450k matrix or "EPIC" for Illumina EPIC matrix. 
 \end{itemize} 
 The function then generates for all pairwise contrasts/levels of the phenotype vector,tables of top-ranked genes. The function also returns the average beta-matrix with rows labeling genes. Similarly, the input arguments of \emph{GenStatR} are:
 \begin{itemize}
@@ -241,7 +242,7 @@ It may be that we only wish to infer either differential methylation or differen
 \\\\
 The workflow applying GenStatM, DoIntEpi450k and DoEpiMod would be something like:
 <<>>=
-#statM.o <- GenStatM(dnaM.m,phenoM.v);
+#statM.o <- GenStatM(dnaM.m,phenoM.v,"450k");
 #intEpi.o=DoIntEpi450k(statM.o,adj.m,c=1)
 #EpiMod.o=DoEpiMod(intEpi.o,
 #                          nseeds=100,gamma=0.5,nMC=1000,sizeR.

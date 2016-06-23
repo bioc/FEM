@@ -1,13 +1,25 @@
 ### GenStatM.R
 
-GenStatM <- function(dnaM.m,pheno.v){
+GenStatM <- function(dnaM.m,pheno.v,chiptype="450k"){
 
-    data("probe450kfemanno");
+    if (chiptype == "450k"){
+        data("probe450kfemanno")
+        probefemanno <- probe450kfemanno
+    }
+    else if (chiptype == "EPIC" ){
+        data("probeEPICfemanno")
+        probefemanno <- probeEPICfemanno
+    }
+    else{
+        print("ERROR: Please indicate correct data type!")
+        break
+    }
+
     extractFn <- function(tmp.v, ext.idx) {
         return(tmp.v[ext.idx])
     }
-    map.idx <- match(rownames(dnaM.m), probe450kfemanno$probeID);
-    probeInfo.lv <- lapply(probe450kfemanno, extractFn, map.idx)
+    map.idx <- match(rownames(dnaM.m), probefemanno$probeID);
+    probeInfo.lv <- lapply(probefemanno, extractFn, map.idx)
     beta.lm <- list()
     for (g in 1:6) {
         group.idx <- which(probeInfo.lv[[3]] == g)

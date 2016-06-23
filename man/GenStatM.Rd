@@ -5,21 +5,25 @@
 Generation of differential DNA methylation statistics
 }
 \description{
-Given an Illumina 450k data matrix and a phenotype vector, it will
-generate statistics of differential DNA methylation using limma, at the
+Given an Illumina 450k or EPIC (850k) data matrix and a phenotype vector, it 
+will generate statistics of differential DNA methylation using limma, at the
 gene-level, for all pairwise comparisons of phenotype levels.
 }
 \usage{
-GenStatM(dnaM.m,pheno.v)
+GenStatM(dnaM.m,pheno.v,"chiptype")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{dnaM.m}{
 The DNA methylation beta valued data matrix with rownames annotated to
-Illumina 450k probe IDs
+Illumina 450k or EPIC(850k) probe IDs
 }
   \item{pheno.v}{
 The phenotype vector. 
+}
+  \item{chiptype}{
+A parameter specifying the the input data matrix, it should be either "450k" for
+Illumina 450k matrix or "EPIC" for Illumina EPIC matrix. default for "450k"
 }
 }
 \details{
