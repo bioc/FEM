@@ -1,6 +1,6 @@
 citEntry(entry="Article", 
          title = "A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control", 
-         author ="Jiao Y, Widschwendter M, Teschendorff AE", 
+         author ="Y Jiao and M Widschwendter and AE Teschendorff", 
          doi = "10.1093/bioinformatics/btu316",
          journal = "Bioinformatics", 
          pages = "2360-2366", 
