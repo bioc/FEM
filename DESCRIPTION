@@ -1,8 +1,8 @@
 Package: FEM
 Type: Package
 Title: Identification of Functional Epigenetic Modules
-Version: 3.1.2
-Date: 2016-05-14
+Version: 3.1.3
+Date: 2016-10-12
 Author: Andrew E. Teschendorff and Zhen Yang
 Maintainer: Zhen Yang <yangzhen@picb.ac.cn>
 Description: The FEM package performs a systems-level integrative analysis of DNA methylation and gene expression data. It seeks modules of functionally related genes which exhibit differential promoter DNA methylation and differential expression, where an inverse association between promoter DNA methylation and gene expression is assumed. For full details, see Jiao et al Bioinformatics 2014.
@@ -13,4 +13,4 @@ Imports: graph
 biocViews:
         SystemsBiology,NetworkEnrichment,DifferentialMethylation,DifferentialExpression
 NeedsCompilation: no
-Packaged: 2016-05-04 05:48:20 UTC; biocbuild
+Packaged: 2016-10-12 05:48:20 UTC; biocbuild
