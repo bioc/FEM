@@ -16,7 +16,7 @@ DoFEMbi(intFEM.o, nseeds = 100, gamma = 0.5, nMC = 1000, sizeR.v = c(1,100),
 %- maybe also 'usage' for other objects documented here.
 \arguments{
 
-  \item{intFEM.o}{The output of the DoFEMbi function.}
+  \item{intFEM.o}{The output of the DoIntFEM450k function.}
   \item{nseeds}{An integer specifying the number of seeds and therefore
   modules to search for. By default this number is 100.}
 
