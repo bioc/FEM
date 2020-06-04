@@ -21,14 +21,14 @@
 \title{The FEM R package: Identification of Functional Epigenetic Modules}
 
 % 150 characters
-\author{Yinming Jiao and Andrew E. Teschendorff}
+\author{Zhen Yang and Andrew E. Teschendorff}
 
 \maketitle
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Summary}
 
-This vignette provides examples of how to use the package FEM to identify interactome hotspots of differential promoter methylation and differential expression, where an inverse association between promoter methylation and gene expression is assumed \cite{jiao2014}. By “interactome hotspot” we mean a connected subnetwork of the protein interaction network (PIN) with an exceptionally large average edge-weight density in relation to the rest of the network. The weight edges are constructed from the statistics of association of DNA methylation and gene expression with the phenotype of interest. Thus, the FEM algorithm can be viewed as a functional supervised algorithm, which uses a network of relations between genes (in our case a PPI network), to identify subnetworks where a significant number of genes are associated with a phenotype of interest (POI).  We call these “hotspots” also Functional Epigenetic Modules (FEMs). Current functionality of FEM works for Illumina Infinium 450k data, however, the structure is modular allowing easy application or generalization to DNA methylation data generated with other technologies. The FEM algorithm on Illumina 27k data was first presented in \cite{Jones2013pmed}, with its extension to Illumina 450k data described in \cite{jiao2014}. The module detection algorithm used is the spin-glass algorithm of \cite{Reichardt2006}. The PIN used in this vignette includes only protein-protein interactions, derives from Pathway Commons \cite{Cerami2011} and is available from {\it http://sourceforge.net/projects/funepimod/files} under filename \emph{hprdAsigH*.Rd}, but the user is allowed to specify his own network.\\
+This vignette provides examples of how to use the package FEM to identify interactome hotspots of differential promoter methylation and differential expression, where an inverse association between promoter methylation and gene expression is assumed \cite{jiao2014}. By “interactome hotspot” we mean a connected subnetwork of the protein interaction network (PIN) with an exceptionally large average edge-weight density in relation to the rest of the network. The weight edges are constructed from the statistics of association of DNA methylation and gene expression with the phenotype of interest. Thus, the FEM algorithm can be viewed as a functional supervised algorithm, which uses a network of relations between genes (in our case a PPI network), to identify subnetworks where a significant number of genes are associated with a phenotype of interest (POI).  We call these “hotspots” also Functional Epigenetic Modules (FEMs). Current functionality of FEM works for Illumina Infinium 450k/EPIC array data, however, the structure is modular allowing easy application or generalization to DNA methylation data generated with other technologies. The FEM algorithm on Illumina 27k data was first presented in \cite{Jones2013pmed}, with its extension to Illumina 450k data described in \cite{jiao2014}. The module detection algorithm used is the spin-glass algorithm of \cite{Reichardt2006}. The updated version of FEM presents a computationally more efficient implementation of the seed-based greedy module detection algorithm. The PIN used in this vignette includes only protein-protein interactions, derives from Pathway Commons \cite{Cerami2011} and is available from {\it http://sourceforge.net/projects/funepimod/files} under filename \emph{hprdAsigH*.Rd}, but the user is allowed to specify his own network.\\
 There are three main components to this vignette. These are:
 \begin{itemize}
 \item Application to simulated data.
@@ -109,20 +109,20 @@ We use DoFEMbi() to find the community structures induced by these phenotype cha
 intFEM.o <- list(statM=Toydata$statM,statR=Toydata$statR,adj=Toydata$adj);
 @
 << results=hide>>=
-DoFEMtoy.o  <- DoFEMbi(intFEM.o,nseeds=1,gamma=0.5,nMC=1000,
-sizeR.v=c(1,100),minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TOY",ew.v=NULL);
+DoFEMtoy.o  <- DoFEMbi(intFEM.o,nseeds=1,gamma=1.1,nMC=1000,
+minSize=5,maxSize=50,writeOUT=TRUE,nameSTUDY="TOY");
 @
 Some of the arguments of this function are worth describing here:\\\\
 \textbf{nseeds:} This is the number of seeds/modules to search for. \\\\
 \textbf{gamma:} This is the tuning parameter of the spin-glass module detection algorithm. This parameter is very important because it controls the average module size. Default value generally leads to modules in the desired size range of 10 to 100 genes.\\\\
 \textbf{nMC:} The number of Monte Carlo runs for establishing statistical significance of modularity values under randomisation of the molecular profiles on the network.\\\\
-You can also use "sizeR.v" to set the desired size range for modules, "minsizeOUT" to set the minimum size of modules to report as interesting and "writeOUT" to indicate whether to write out tables in text format.\\\\
+You can use "minSize" and "maxSize" to set the minimum and maximum size of modules to report as interesting and "writeOUT" to indicate whether to write out tables in text format.\\\\
 There are two output files summarising the results of the \emph{DoFEMbi} function. One output file contains colums which describe the following: 
 \begin{itemize}
 \item size: a vector of inferred module sizes for each of the ntop seeds.
 \item mod: a vector of associated modularities.
 \item pv: a vector of associated significance P-values (with resolution of nMC runs).
-\item selmod: index positions of significant modules of size at least minsizeOUT and smaller than the maximum specified in sizeR.v
+\item sigmod: index positions of significant modules of size at least minSize and smaller than the maximum specified in maxSize
 \item fem: a summary matrix of the selected modules.
 \item topmod: a list of summary matrices for each of the selected module
 \end{itemize}
@@ -131,14 +131,14 @@ Let's check the details of the output:
 <<>>=
 DoFEMtoy.o$fem
 @
-We can see that we get one module with seed gene "SGMS2" (entrez gene ID = 166929), hence module name ``SGMS2''. This module has 36 members.
+We can see that we get one module with seed gene "SGMS2" (entrez gene ID = 166929), hence module name ``SGMS2''. This module has 13 members.
 %%%%%%
 With the following command, we can have a look at the details of the first five genes of the "SGMS2" module:
 <<>>=
 head(DoFEMtoy.o$topmod$SGMS2,n=5L)
 @
 To show the SGMS2 module in the whole network, use:
-%%%%%% ---Plot the net with 36 node
+%%%%%% ---Plot the net with 13 node
 <<fig=TRUE>>=
 mod.idx<- match(DoFEMtoy.o$topmod$SGMS2[,1],rownames(Toydata$adj));
 plot.igraph(graph.adjacency(Toydata$adjacency,mod="undirected"),
@@ -151,7 +151,7 @@ In order to check the effectiveness of FEM in detecting the true module, we comp
 sensitivity=length(intersect(tennodes,rownames(Toydata$adj)[mod.idx]))/length(tennodes);
 sensitivity
 @
-Thus, we find that the sensitivity is 100$\%$, meaning that FEM inferred a module that contained all 10 genes that were truly differentially methylated and expressed. Although, specificity is not 100$\%$, this is to be expected since a larger module can still exhibit a higher than random average weight density.
+Thus, we find that the sensitivity is 60$\%$, meaning that FEM inferred a module that contained 6 genes that were truly differentially methylated and expressed. Although, specificity is not 100$\%$, this is to be expected since a larger module can still exhibit a higher than random average weight density. We can choose gamma or the seed so that sensitivity and specificity can be higher.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{A real world example: application to Endometrial Cancer}
@@ -167,11 +167,11 @@ As before, we prepare the input object:
 <<>>=
 intFEM.o <- list(statM=Realdata$statM,statR=Realdata$statR,adj=Realdata$adj)
 @ 
-Since running DoFEMbi on large data sets can be lengthy (it takes 23 minutes on a 4 3GHz CPU-core Dell Workstation with 16GB memory), we comment the following line out:
+Since running DoFEMbi on large data sets can be a little bit lengthy, we comment the following line out:
 <<>>=
 #Realdata$fembi.o <- DoFEMbi(intFEM.o,
-#                            nseeds=100,gamma=0.5,nMC=1000,sizeR.v=c(1,100),
-#                            minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TCGA-EC",ew.v=NULL);
+#                            nseeds=100,gamma=0.5,nMC=1000,
+#                            minSize=5,maxSize=50,writeOUT=TRUE,nameSTUDY="TCGA-EC");
 @
 %%%%%%
 The results are found in the \emph{fembi.o} entry of \emph{Realdata}. The algorithm predicts a number of FEM modules. Use the following command to display their size and elements.
@@ -217,7 +217,7 @@ In the above examples we provided the statistics and adjacency matrix input obje
 \item pheno.v: phenotype vector corresponding to the samples/columns of dnaM.m. 
 \item chiptype: A parameter specifying the the input DNA methylation data matrix, it should be either "450k" for Illumina 450k matrix or "EPIC" for Illumina EPIC matrix. 
 \end{itemize} 
-The function then generates for all pairwise contrasts/levels of the phenotype vector,tables of top-ranked genes. The function also returns the average beta-matrix with rows labeling genes. Similarly, the input arguments of \emph{GenStatR} are:
+The function then generates for all pairwise contrasts/levels of the phenotype vector,tables of top-ranked genes. The function also returns the average beta-matrix with rows labeling genes. Similarly, we also provide another function of \emph{GenStatMsp}, instead of the average beta value in the promoter regions, this function will select the most significant differentially methylated CpG from promoter region for each gene as representative. For gene expression data analysis, the input arguments of \emph{GenStatR} are:
 \begin{itemize}
 \item exp.m: normalized gene expression data matrix with rownames annotated to NCBI Entrez gene IDs. If the mapped Entrez gene IDs are not unique, the function will average values of the same Entrez gene ID.
 \item pheno.v: phenotype vector corresponding to the columns of exp.m.

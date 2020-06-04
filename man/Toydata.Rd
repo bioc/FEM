@@ -39,7 +39,7 @@ A systems-level integrative framework for genome-wide DNA methylation and gene e
 \examples{
 data(Toydata);
 intFEM.o <- list(statM=Toydata$statM,statR=Toydata$statR,adj=Toydata$adjacency);
-DoFEMbi(intFEM.o,nseeds=1,gamma=0.5,nMC=1000,sizeR.v=c(1,100),minsizeOUT=10,
- writeOUT=TRUE,nameSTUDY="TEST",ew.v=NULL);
+DoFEMbi(intFEM.o,nseeds=1,gamma=1.1,nMC=1000,minSize=5,maxSize=50,
+ writeOUT=TRUE,nameSTUDY="TEST");
 }
 \keyword{datasets}

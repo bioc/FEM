@@ -9,8 +9,8 @@ This function aims to identify subnetworks where many members exhibit
 differential DNA methylation in relation to the phenotype of interest.
 }
 \usage{
-DoEpiMod(intEpi.o, nseeds = 100, gamma = 0.5, nMC = 1000,
- sizeR.v = c(1, 100), minsizeOUT = 10, writeOUT = TRUE, nameSTUDY = "X", ew.v = NULL)
+DoEpiMod(intEpi.o, nseeds = 100, gamma = 0.5, nMC = 1000, sizeR.v = c(1, 100)
+ minsizeOUT = 10, writeOUT = TRUE, nameSTUDY = "X", ew.v = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -25,7 +25,7 @@ DoEpiMod(intEpi.o, nseeds = 100, gamma = 0.5, nMC = 1000,
   \item{nMC}{Number of Monte Carlo runs for establishing statistical significance of modularity values under randomisation of the molecular profiles on the network.}
 
   \item{sizeR.v}{Desired size range for modules.}
-  
+
   \item{minsizeOUT}{
  Minimum size of modules to report as interesting.
 }
@@ -80,14 +80,14 @@ A systems-level integrative framework for genome-wide DNA methylation and gene e
 \examples{
 data(Toydata);
 intEpi.o <- list(statM=Toydata$statM,adj=Toydata$adjacency);
-EpiMod.o=DoEpiMod(intEpi.o,nseeds=1,gamma=0.5,nMC=1000,sizeR.v=c(1,100),
+EpiMod.o=DoEpiMod(intEpi.o,nseeds=1,gamma=0.5,nMC=1000,
  minsizeOUT=10,writeOUT=TRUE,nameSTUDY="TEST",ew.v=NULL);
 
 #You can also test on the Realdata which contains DNA methylation of 17
 #normal and 118 endometrial cancer samples. Since running on the realdata is time-consuming,  we comment it out.   
 #data(Realdata);
 # intEpi.o <- list(statM=Realdata$statM,adj=Realdata$adjacency);
-#EpiMod.o=DoEpiMod(intEpi.o,nseeds=100,gamma=0.5,nMC=1000,sizeR.v=c(1,100),nameSTUDY="TEST")
+#EpiMod.o=DoEpiMod(intEpi.o,nseeds=100,gamma=0.5,nMC=1000,nameSTUDY="TEST")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

@@ -1,4 +1,4 @@
 exportPattern("^[[:alpha:]]+")
-import(Matrix,marray,corrplot,igraph,impute,limma,org.Hs.eg.db,graph,BiocGenerics)
+import(Matrix,marray,corrplot,igraph,impute,limma,org.Hs.eg.db,graph,BiocGenerics,parallel)
 importMethodsFrom(AnnotationDbi, as.list)
 import(graph)

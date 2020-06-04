@@ -1,17 +1,17 @@
-c(bibentry(bibtype = "Article",
-           key = “FEM”,
-           title = "{A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control}",
-           author = c(
+year <- sub("-.*", "", meta$Date)
+note <- sprintf("R package version %s", meta$Version)
+
+bibentry(bibtype = "Article",
+         title = "{A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control}",
+         author = c(
                person(“Yinming”, “Jiao”),
                person(“Martin”, "Widschwendter"),
-               person(c("Andrew", “E.”), "Teschendorff")
-           ),
-           year = 2014,
-           journal = "Bioinformatics",
-           volume = "30",
-           pages = "2360-2366",
-           doi = "10.1093/bioinformatics/btu316",
-           url = "http://bioinformatics.oxfordjournals.org/content/30/16/2360.long",
-           textVersion = "Jiao Y, Widschwendter M, Teschendorff AE. (2014) A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control. Bioinformatics 15;30(16):2360-6."
+               person(c("Andrew", “E.”), "Teschendorff")),
+          year = 2014,
+          journal = "Bioinformatics",
+          volume = "30",
+          pages = "2360-2366",
+          doi = "10.1093/bioinformatics/btu316",
+          url = "http://bioinformatics.oxfordjournals.org/content/30/16/2360.long",
+          textVersion = "Jiao Y, Widschwendter M, Teschendorff AE. (2014) A systems-level integrative framework for genome-wide DNA methylation and gene expression data identifies differential gene expression modules under epigenetic control. Bioinformatics 15;30(16):2360-6."
 )
-
